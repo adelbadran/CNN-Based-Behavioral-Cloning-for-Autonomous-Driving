@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Pilot | Steering Predictor</title>
+    <style>
+        /*
+        ===========================
+        CSS: NEON Theme & Styling
+        ===========================
+        */
+        :root {
+            --neon-blue: #00ffff;
+            --neon-pink: #e614e6;
+            --dark-bg: #0d0d10;
+            --light-bg: #1c1c22;
+        }
+
+        body {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background-color: var(--dark-bg);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--light-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.3); /* Initial subtle neon glow */
+            border: 1px solid var(--neon-blue);
+            transition: all 0.3s ease;
+        }
+
+        .neon-heading {
+            color: var(--neon-blue);
+            text-shadow: 0 0 3px var(--neon-blue), 0 0 6px var(--neon-blue), 0 0 17px var(--neon-blue);
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+        
+        /* --- Upload Area Styling --- */
+        .upload-area {
+            border: 3px dashed var(--neon-pink);
+            padding: 40px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .upload-area p {
+            font-size: 1.1em;
+            color: #ccc;
+            margin: 0;
+        }
+
+        #file-input {
+            display: none; /* Hide the default file input */
+        }
+        
+        /* --- Button Styling --- */
+        .neon-button {
+            background-color: transparent;
+            color: var(--neon-pink);
+            border: 2px solid var(--neon-pink);
+            padding: 12px 30px;
+            font-size: 1.2em;
+            text-transform: uppercase;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px var(--neon-pink);
+            margin-top: 20px;
+        }
+
+        .neon-button:hover,
+        .neon-button:focus {
+            background-color: var(--neon-pink);
+            color: var(--dark-bg);
+            box-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
+        }
+
+        .neon-button:disabled {
+            border-color: #555;
+            color: #555;
+            cursor: not-allowed;
+            background: none;
+            box-shadow: none;
+        }
+
+        /* --- Image Preview & Result Area --- */
+        #preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none; /* Hidden by default */
+            border: 2px solid var(--neon-blue);
+        }
+        
+        .result-box {
+            background-color: var(--dark-bg);
+            border: 1px solid var(--neon-blue);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+            min-height: 50px;
+        }
+
+        .result-label {
+            color: var(--neon-blue);
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        #result-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--neon-pink);
+            text-shadow: 0 0 9px var(--neon-pink), 0 0 20px var(--neon-pink);
+        }
+        
+        /* --- Loading Spinner --- */
+        .loader {
+            border: 4px solid #f3f3f31a;
+            border-top: 4px solid var(--neon-pink);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            color: var(--neon-pink);
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="neon-heading">Autonomous Pilot</h1>
+        <p>Upload an image of the Track</p>
+
+        <div class="upload-area" onclick="document.getElementById('file-input').click()">
+            <p>Click to upload the image (JPG, PNG)</p>
+            <input type="file" id="file-input" accept="image/jpeg, image/png">
+        </div>
+        
+        <img id="preview-image" src="#" alt="Image Preview">
+
+        <button class="neon-button" id="predict-button" disabled>
+            Predict the Steering Angle
+        </button>
+
+        <div class="loader" id="loader"></div>
+        
+        <div class="result-box">
+            <div class="result-label">Predicted Angle is:</div>
+            <div id="result-display">--</div>
+            <div class="error-message" id="error-message"></div>
+        </div>
+    </div>
+
+    <script>
+        /*
+        ===========================
+        JavaScript: API Interaction
+        ===========================
+        */
+        const fileInput = document.getElementById('file-input');
+        const previewImage = document.getElementById('preview-image');
+        const predictButton = document.getElementById('predict-button');
+        const resultDisplay = document.getElementById('result-display');
+        const loader = document.getElementById('loader');
+        const errorMessage = document.getElementById('error-message');
+
+        // يُشير إلى عنوان الـ API، يجب أن يتطابق مع المضيف والمنفذ في uvicorn
+        const API_ENDPOINT = 'http://localhost:8000/predict'; 
+
+        // 1. معالجة اختيار الملف وعرض المعاينة
+        fileInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block'; // Show image
+                    predictButton.disabled = false;      // Enable the button
+                    resultDisplay.textContent = '--';    // Reset result
+                    errorMessage.textContent = '';       // Clear previous errors
+                };
+                
+                reader.readAsDataURL(file);
+            } else {
+                previewImage.style.display = 'none';
+                predictButton.disabled = true;
+                resultDisplay.textContent = '--';
+            }
+        });
+
+        // 2. معالجة النقر على زر التنبؤ
+        predictButton.addEventListener('click', async function() {
+            const file = fileInput.files[0];
+            if (!file) {
+                errorMessage.textContent = 'الرجاء اختيار ملف صورة أولاً.';
+                return;
+            }
+
+            // تهيئة حالة الواجهة قبل الإرسال
+            predictButton.disabled = true;
+            loader.style.display = 'block';
+            resultDisplay.textContent = '...';
+            errorMessage.textContent = '';
+
+            try {
+                // إنشاء كائن FormData لإرسال الملف
+                const formData = new FormData();
+                formData.append('file', file);
+
+                // إرسال طلب POST إلى الـ API
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    body: formData,
+                    // لا نحتاج لتعيين 'Content-Type' عندما نستخدم FormData
+                });
+
+                // معالجة الاستجابة
+                if (response.ok) {
+                    const data = await response.json();
+                    const angle = data.steering_angle.toFixed(4); // تنسيق النتيجة
+                    resultDisplay.textContent = angle + '°';
+                } else {
+                    const errorDetails = await response.json();
+                    const detail = errorDetails.detail || "حدث خطأ غير معروف في الخادم.";
+                    resultDisplay.textContent = 'خطأ!';
+                    errorMessage.textContent = `فشل التنبؤ: ${detail}`;
+                }
+
+            } catch (error) {
+                // معالجة أخطاء الشبكة (مثل فشل الاتصال بالخادم)
+                console.error('Fetch error:', error);
+                resultDisplay.textContent = 'خطأ!';
+                errorMessage.textContent = 'فشل الاتصال بالخادم. تأكد من تشغيل API على http://localhost:8000.';
+            } finally {
+                // إعادة حالة الواجهة
+                predictButton.disabled = false;
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

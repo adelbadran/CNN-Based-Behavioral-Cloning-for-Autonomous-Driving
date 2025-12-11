@@ -1,0 +1,11 @@
+Model Information:
+* title:	Lamborghini-Steering wheel
+* source:	https://sketchfab.com/3d-models/lamborghini-steering-wheel-8ae26f1177f84bf3800e6b588d74b46a
+* author:	integrart (https://sketchfab.com/integratinashe)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Lamborghini-Steering wheel" (https://sketchfab.com/3d-models/lamborghini-steering-wheel-8ae26f1177f84bf3800e6b588d74b46a) by integrart (https://sketchfab.com/integratinashe) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
