@@ -113,8 +113,9 @@ All augmentations are implemented using **Albumentations** for efficient GPU-acc
 - **DataLoader workers:** 4 with pinned memory for optimized GPU transfer
 
 **Final Dataset Sizes:**
-- Training: ~77,863 samples (after balancing and camera expansion)
-- Validation: ~19466 samples
+- Training: ~32,611 samples (after balancing and camera expansion)
+- Validation: ~5,756 samples
+- test: ~6,771 samples
 
 ---
 
