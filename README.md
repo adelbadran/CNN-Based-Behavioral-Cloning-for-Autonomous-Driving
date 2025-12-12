@@ -321,7 +321,7 @@ This project is licensed under the **MIT License**
 
 - **Udacity** for the Self-Driving Car Simulator and curriculum inspiration: [Udacity Simulator Term 1 Download](https://s3-us-west-1.amazonaws.com/udacity-selfdrivingcar/Term1-Sim/term1-simulator-windows.zip)
 - **NVIDIA** for pioneering end-to-end learning research: [End-to-End Deep Learning for Self-Driving Cars](https://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf)
-- **Kaggle dataset provider:** [zaynena](https://www.kaggle.com/zaynena)
+- **Kaggle dataset provider:** [zaynena](https://www.kaggle.com/datasets/zaynena/selfdriving-car-simulator/data)
 - **PyTorch** and **Albumentations** communities for excellent tools and libraries
 
 ---
