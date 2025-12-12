@@ -292,6 +292,9 @@ The model successfully completes full autonomous laps on Track 2 with smooth cor
 #### Steering Distribution Balancing
 ![Steering Histogram](IMG/steering_histogram_before_after.png)
 
+#### Train Vs Validation
+![Augmented Samples](IMG/Train_Validation_Split.png)
+
 #### Training Augmentation Examples
 ![Augmented Samples](IMG/augmented_batch_samples.png)
 
