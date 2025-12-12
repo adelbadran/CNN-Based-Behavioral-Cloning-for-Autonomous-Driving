@@ -286,7 +286,7 @@ The model successfully completes full autonomous laps on Track 2 with smooth cor
 ![Steering Histogram](IMG/steering_histogram_before_after.png)
 
 #### Train Vs Validation
-![Augmented Samples](IMG/Train_Validation_Split.png)
+![Data Split](IMG/Train_Validation_Split.png)
 
 #### Training Augmentation Examples
 ![Augmented Samples](IMG/augmented_batch_samples.png)
@@ -356,3 +356,8 @@ CNN-Based Behavioral Cloning for Autonomous Driving/
 
 
 **Happy autonomous driving!** 🚗💨
+
+#### Streaming
+![Live (Track 1)](IMG/LiveStreaming_1.png)
+
+![Live (Track 2)](IMG/LiveStreaming_2.png)
