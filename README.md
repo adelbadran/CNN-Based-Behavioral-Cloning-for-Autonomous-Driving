@@ -336,12 +336,12 @@ CNN-Based Behavioral Cloning for Autonomous Driving/
 │   ├── sim_server/                 # Simulator communication server
 │   └── sim_web/                   # Web-based visualization dashboard
 ├── Saved Models/                   # Trained model checkpoints
-│    ├── Track_1/
-│    │    │── vit_model.pth         # Vision Transformer weights
-│    │    └── nvidia_model.pth     # NVIDIA PilotNet weights
-│    ├── Track_2/
-│    │    └── nvidia_model.pth     # NVIDIA PilotNet weights
-│    └── Combined/
+│   ├── Track_1/
+│   │   │── vit_model.pth         # Vision Transformer weights
+│   │   └── nvidia_model.pth     # NVIDIA PilotNet weights
+│   ├── Track_2/
+│   │   └── nvidia_model.pth     # NVIDIA PilotNet weights
+│   └── Combined/
 │        └── nvidia_model.pth      # NVIDIA PilotNet weights
 ├── Installation/                  # Setup and configuration files
 │   ├── requirements.txt           # Python dependencies
