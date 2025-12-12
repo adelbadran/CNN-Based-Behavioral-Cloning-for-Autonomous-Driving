@@ -153,28 +153,38 @@ The training process utilizes Mean Squared Error (MSE) loss for steering angle r
 
 ## Deployment & Real-Time Inference
 
-### Smart Drive Script (`auto_mode.py`)
+### 🚗 Enhanced Smart Drive System (`auto_mode.py`)
 
-A production-ready inference server with advanced control logic enables real-time autonomous driving.
+A compact, high-performance autonomous driving engine using **Adaptive Response Control** for smooth, stable, and intelligent real-time driving.
 
-**Features:**
-- **SocketIO Integration:** Real-time bidirectional communication with the simulator
-- **Preprocessing Consistency:** Exact replication of the training preprocessing pipeline
-- **Steering Smoothing:** Exponential moving average (α=0.2) reduces steering jitter
-- **Dynamic Throttle Control:** Curve-aware speed management
-  - Straight roads: Up to 15 km/h (configurable via `--max_limit`)
-  - Sharp curves: Automatically reduces to ~5 km/h based on steering magnitude
-  - Emergency stop triggered on extreme steering (>0.9) or excessive speed
-- **Camera Selection:** Supports center/left/right camera streams with steering correction
-- **Image Recording:** Optional image logging for debugging and analysis
+#### 🔥 Core Features
+- **Curve Severity Classification** (STRAIGHT → EXTREME)
+- **Dynamic Steering Boost** (1.0× → 2.7×)
+- **Adaptive Smoothing** per curve category
+- **Multi-Profile Throttle Control**  
+  - Braking (negative throttle)  
+  - Reverse throttle in EXTREME recovery  
+  - Safe acceleration + speed targeting  
+- **Speed Bands** for stability *(3 → 23 km/h)*
+- **Camera Correction** for left/right feeds
+- **Real-Time Image Recorder**
+- **Professional Console Telemetry**
 
-**Throttle Formula:**
+#### 🌀 Curve Categories
+| Category | Boost | Response | Speed |
+|---------|--------|-----------|--------|
+| 🔴 EXTREME | 1.5–2.7× | 95% | 3–7 km/h |
+| 🟠 VERY_SHARP | 1.4–1.9× | 90% | 5–10 km/h |
+| 🟡 SHARP | 1.3–1.7× | 85% | 7–13 km/h |
+| 🟢 MEDIUM | 1.2–1.5× | 70% | 9–17 km/h |
+| 🔵 GENTLE | 1.1–1.3× | 55% | 15–20 km/h |
+| ⚪ STRAIGHT | 1.0× | 40% | 18–23 km/h |
 
-```python
-dynamic_limit = max(5.0, max_limit - abs(steering) * 10.0)
-throttle = 1.0 - (speed / dynamic_limit) ** 2
-throttle = clamp(throttle, 0.0, max_throttle)
-```
+#### ⚙️ Adaptive Throttle
+- Negative throttle for braking  
+- Reverse pulses for EXTREME recovery  
+- Category-based acceleration  
+- Throttle smoothing **0.35 → 0.85**
 
 ### Real-Time Self-Driving Visualization System
 
