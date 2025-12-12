@@ -108,7 +108,7 @@ All augmentations are implemented using **Albumentations** for efficient GPU-acc
 
 - Custom PyTorch `DrivingDataset` class with integrated augmentation support
 - Multi-camera expansion: 3× data multiplication (center, left, right cameras)
-- Train/validation split: 80/20 with fixed random seed (`random_state=42`)
+- Train/test/validation split: 72/15/13 with fixed random seed (`random_state=42`)
 - **Batch size:** 64
 - **DataLoader workers:** 4 with pinned memory for optimized GPU transfer
 
@@ -200,11 +200,8 @@ A separate FastAPI endpoint with a neon-themed UI provides instant steering pred
 python auto_mode.py model.pth [image_folder] [options]
 
 Options:
-  --camera {center,left,right}  Camera stream selection (default: center)
-  --steer_correction FLOAT      Left/right camera correction (default: 0.2)
-  --alpha FLOAT                 Steering smoothing factor (default: 0.2)
-  --max_limit FLOAT             Maximum speed on straight sections in km/h (default: 15.0)
-  --max_throttle FLOAT          Maximum throttle value 0-1 (default: 0.8)
+  --max_throttle FLOAT          Maximum throttle value 0-1 (default: 0.65)
+  --steer_correction FLOAT      Left/right camera correction (default: 0.25)
   --port INT                    Server port (default: 4567)
 ```
 
@@ -251,11 +248,7 @@ pip install -r requirements.txt
 python drive.py nvidia_model.pth
 
 # Advanced usage with custom settings
-python drive.py best_model.pth run_images/ \
-  --camera center \
-  --max_limit 20.0 \
-  --max_throttle 0.9 \
-  --alpha 0.3
+python auto_mode.py model.pth --max_throttle 0.65 --steer_correction 0.25 --port 4567
 ```
 
 ### Simulator Connection
@@ -268,7 +261,7 @@ python drive.py best_model.pth run_images/ \
 ### Expected Console Output
 
 ```
-📦 Loading model from: nvidia_model.pth
+📦 Loading model from: model.pth
 ✓ Model loaded and set to eval
 📸 Saving images to: output_images
 🌐 Starting server on port 4567 ...
@@ -289,7 +282,7 @@ The model successfully completes full autonomous laps on Track 2 with smooth cor
 
 ### Visualizations
 
-#### Steering Distribution Balancing
+#### Steering Distribution Balancing (After attempts)
 ![Steering Histogram](IMG/steering_histogram_before_after.png)
 
 #### Train Vs Validation
@@ -316,17 +309,6 @@ torch.load(model_path, map_location='cpu')
 - Ensure the simulator is in Autonomous Mode
 - Confirm no other process is using port 4567
 
-### Car Drives Off Track
-
-- Reduce `--max_limit` (try 10-12 km/h)
-- Increase steering smoothing with `--alpha` (try 0.3-0.4)
-- Consider retraining with additional data or improved distribution balancing
-
-### Jerky Steering
-
-- Increase `--alpha` for more aggressive smoothing
-- Verify the model was trained with sufficient augmentation
-
 ---
 
 ## License
@@ -352,16 +334,21 @@ CNN-Based Behavioral Cloning for Autonomous Driving/
 ├── Deployment/                     # Deployment and inference components
 │   ├── predictor/                  # Standalone prediction service
 │   ├── sim_server/                 # Simulator communication server
-│   └── sim_web/                    # Web-based visualization dashboard
+│   └── sim_web/                   # Web-based visualization dashboard
 ├── Saved Models/                   # Trained model checkpoints
-│   │── vit_model.pth               # Vision Transformer weights
-│   └── nvidia_model.pth            # NVIDIA PilotNet weights
-├── Installation/                   # Setup and configuration files
-│   ├── requirements.txt            # Python dependencies
-│   └── setup_instructions.md       # Detailed installation guide
-├── Notebooks/                      # Training notebooks
-│   └── Self_Driving_Car_Sim.ipynb  # NVIDIA PilotNet & VIT training
-└── README.md                       # Project documentation
+│    ├── Track_1/
+│    │    │── vit_model.pth         # Vision Transformer weights
+│    │    └── nvidia_model.pth     # NVIDIA PilotNet weights
+│    ├── Track_2/
+│    │    └── nvidia_model.pth     # NVIDIA PilotNet weights
+│    └── Combined/
+│        └── nvidia_model.pth      # NVIDIA PilotNet weights
+├── Installation/                  # Setup and configuration files
+│   ├── requirements.txt           # Python dependencies
+│   └── setup_instructions.md      # Detailed installation guide
+├── Notebooks/                     # Training notebooks
+│   └── Self_Driving_Car_Training.ipynb # NVIDIA PilotNet & ViT training
+└── README.md                     # Project documentation
 
 ```
 
