@@ -67,8 +67,8 @@ This repository implements a complete behavioral cloning pipeline that predicts 
 
 **Dataset Structure:**
 - `track1data/` – 31,845 samples (Track 1 only)
-- `track2data/` – 65,484 samples (Track 2 only) ← **Used in this project**
-- `dataset/` – 97,329 samples (both tracks combined)
+- `track2data/` – 65,484 samples (Track 2 only)
+- `dataset/` – 97,329 samples (both tracks combined) ← **Used in this project**
 
 **Data Format (`driving_log.csv`):**
 
@@ -113,8 +113,8 @@ All augmentations are implemented using **Albumentations** for efficient GPU-acc
 - **DataLoader workers:** 4 with pinned memory for optimized GPU transfer
 
 **Final Dataset Sizes:**
-- Training: ~39,600 samples (after balancing and camera expansion)
-- Validation: ~9,900 samples
+- Training: ~77,863 samples (after balancing and camera expansion)
+- Validation: ~19466 samples
 
 ---
 
