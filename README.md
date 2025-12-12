@@ -287,8 +287,13 @@ The model successfully completes full autonomous laps on Track 2 with smooth cor
 
 ### Key Visualizations
 
-- `IMG/steering_histogram_before_after.png` – Distribution balancing visualization
-- `IMG/augmented_batch_samples.png` – Training augmentation examples
+### Visualizations
+
+#### Steering Distribution Balancing
+![Steering Histogram](IMG/steering_histogram_before_after.png)
+
+#### Training Augmentation Examples
+![Augmented Samples](IMG/augmented_batch_samples.png)
 
 ---
 
