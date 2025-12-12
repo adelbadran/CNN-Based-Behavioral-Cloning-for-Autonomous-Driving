@@ -149,7 +149,7 @@ def telemetry(sid, data):
 
         # Apply angle smoothing
         steering = raw_steering * boost
-        steering = response * steering + (1 - response) * prev_steering
+        steering = response * steering + (1 - response) * prev_steering # Smooth steering - low pass filter (used in control engineering)
         prev_steering = steering
         steering = np.clip(steering, -1.0, 1.0)
         curve = abs(steering)
