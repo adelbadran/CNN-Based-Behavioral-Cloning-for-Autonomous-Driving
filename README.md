@@ -355,10 +355,12 @@ CNN-Based Behavioral Cloning for Autonomous Driving/
 
 ---
 
-
-**Happy autonomous driving!** 🚗💨
-
 #### Streaming Track 1
 ![Live (Track 1)](IMG/LiveStreaming_1.png)
+
 #### Streaming Track 2
 ![Live (Track 2)](IMG/LiveStreaming_2.png)
+
+---
+
+**Happy autonomous driving!** 🚗💨
