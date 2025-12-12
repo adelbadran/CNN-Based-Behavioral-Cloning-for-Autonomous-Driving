@@ -5,13 +5,13 @@ import base64
 from datetime import datetime
 from io import BytesIO
 import os
-import shutil
 
 import numpy as np
 from PIL import Image
 import cv2
 import torch
 import torch.nn as nn
+
 import socketio
 import eventlet
 import eventlet.wsgi
@@ -26,6 +26,7 @@ app = Flask(__name__, static_folder='.', static_url_path='')
 
 model = None
 prev_steering = 0.0
+prev_throttle = 0.0
 history = []  # لتخزين كل الإطارات للـ Dashboard
 
 
@@ -111,20 +112,17 @@ def save_image_to_folder(img_b64, folder):
 
 
 # =============================
-# Control helpers
-# =============================
-def clamp(v, mn, mx):
-    return max(mn, min(mx, v))
-
-
-# =============================
 # SocketIO Events
 # =============================
 @sio.on('telemetry')
 def telemetry(sid, data):
-    global prev_steering, model, history
+    global prev_steering, prev_throttle, model, history, ARGS
 
     if not data:
+        sio.emit('steer', {
+            'steering_angle': str(0.0),
+            'throttle': str(0.0)
+        }, skip_sid=True)
         return
 
     try:
@@ -142,24 +140,137 @@ def telemetry(sid, data):
         # التنبؤ
         tensor = preprocess(img_array)
         with torch.no_grad():
-            steering = float(model(tensor).item())
+            raw_steering = float(model(tensor).item())
 
         # تصحيح الكاميرا الجانبية
         if ARGS.camera == "left":
-            steering += ARGS.steer_correction
+            raw_steering += ARGS.steer_correction
         elif ARGS.camera == "right":
-            steering -= ARGS.steer_correction
+            raw_steering -= ARGS.steer_correction
 
-        # تنعيم التوجيه
-        steering = ARGS.alpha * steering + (1 - ARGS.alpha) * prev_steering
+        curve = abs(raw_steering)
+
+        # ===== نظام الاستجابة التكيفي حسب التصنيف =====
+        
+        # تصنيف المنعطف وتحديد معامل الاستجابة + تكبير الزاوية
+        if curve > 0.8:
+            # خطير جداً - استجابة 95% + تكبير قوي للزاوية
+            category = "EXTREME"
+            response = 0.95
+            boost = 1.5 + (curve - 0.8) * 4.0  # تكبير قوي جداً
+            
+        elif curve > 0.65:
+            # حاد جداً - استجابة 90% + تكبير عالي
+            category = "VERY_SHARP"
+            response = 0.90
+            boost = 1.4 + (curve - 0.65) * 3.0  # تكبير عالي
+            
+        elif curve > 0.5:
+            # حاد - استجابة 85% + تكبير متوسط/عالي
+            category = "SHARP"
+            response = 0.85
+            boost = 1.3 + (curve - 0.5) * 2.5  # تكبير جيد
+            
+        elif curve > 0.35:
+            # متوسط - استجابة 70% + تكبير متوسط
+            category = "MEDIUM"
+            response = 0.70
+            boost = 1.2 + (curve - 0.35) * 1.8  # تكبير معتدل
+            
+        elif curve > 0.2:
+            # خفيف - استجابة 55% + تكبير خفيف
+            category = "GENTLE"
+            response = 0.55
+            boost = 1.1 + (curve - 0.2) * 1.2  # تكبير خفيف
+            
+        else:
+            # مستقيم - استجابة 40% + بدون تكبير
+            category = "STRAIGHT"
+            response = 0.40
+            boost = 1.0
+
+        # تطبيق التكبير والاستجابة
+        steering = raw_steering * boost
+        steering = response * steering + (1 - response) * prev_steering
+        
         prev_steering = steering
-        steering = clamp(steering, -1.0, 1.0)
-
-        # حساب الثروتل الذكي
+        steering = np.clip(steering, -1.0, 1.0)
         curve = abs(steering)
-        speed_limit = max(5.0, ARGS.max_speed - curve * 10)
-        throttle = 1.0 - (speed / speed_limit)**2 if speed_limit > 0 else 0.0
-        throttle = clamp(throttle, 0.0, 1.0)
+
+        # ===== سرعات منخفضة جداً حسب التصنيف =====
+        
+        if category == "EXTREME":
+            # منعطف خطير - سرعة بطيئة جداً جداً
+            if speed > 7:
+                throttle = -0.5
+            elif speed > 5:
+                throttle = -0.1
+            elif speed > 3:
+                throttle = 0.05
+            else:
+                throttle = 0.15
+            throttle_smooth = 0.85  # استجابة سريعة للفرملة
+                
+        elif category == "VERY_SHARP":
+            # منعطف حاد جداً - سرعة منخفضة
+            if speed > 10:
+                throttle = -0.35
+            elif speed > 7:
+                throttle = -0.05
+            elif speed > 5:
+                throttle = 0.08
+            else:
+                throttle = 0.18
+            throttle_smooth = 0.8
+                
+        elif category == "SHARP":
+            # منعطف حاد - سرعة محدودة
+            if speed > 13:
+                throttle = -0.2
+            elif speed > 9:
+                throttle = 0.0
+            elif speed > 7:
+                throttle = 0.12
+            else:
+                throttle = 0.23
+            throttle_smooth = 0.75
+                
+        elif category == "MEDIUM":
+            # منعطف متوسط - سرعة معتدلة
+            if speed > 17:
+                throttle = -0.05
+            elif speed > 13:
+                throttle = 0.12
+            elif speed > 9:
+                throttle = 0.22
+            else:
+                throttle = 0.32
+            throttle_smooth = 0.6
+                
+        elif category == "GENTLE":
+            # منعطف خفيف - سرعة جيدة
+            if speed > 20:
+                throttle = 0.18
+            elif speed > 15:
+                throttle = 0.3
+            else:
+                throttle = 0.42
+            throttle_smooth = 0.45
+                
+        else:  # STRAIGHT
+            # مستقيم - سرعة هادئة
+            if speed < 18:
+                throttle = 0.52
+            elif speed < 23:
+                throttle = 0.38
+            else:
+                throttle = 0.25
+            throttle_smooth = 0.35
+
+        # تنعيم الثروتل حسب الفئة
+        throttle = throttle_smooth * throttle + (1 - throttle_smooth) * prev_throttle
+        prev_throttle = throttle
+        throttle = np.clip(throttle, -1.0, ARGS.max_throttle)
 
         # حفظ في التاريخ للـ Dashboard
         history.append({
@@ -183,12 +294,40 @@ def telemetry(sid, data):
             'throttle': round(throttle, 3)
         }, skip_sid=True)
 
+        # رموز تعبيرية حسب الفئة
+        emoji = {
+            "EXTREME": "🔴",
+            "VERY_SHARP": "🟠", 
+            "SHARP": "🟡",
+            "MEDIUM": "🟢",
+            "GENTLE": "🔵",
+            "STRAIGHT": "⚪"
+        }
+        
+        print(f"{datetime.now().strftime('%H:%M:%S')} {emoji[category]} {category:12s} | "
+              f"Rsp:{response:.0%} Bst:{boost:.2f}x | S:{steering:+.3f} | T:{throttle:+.3f} | "
+              f"Spd:{speed:4.1f} | C:{curve:.3f}")
+
     except Exception as e:
         print("Telemetry error:", e)
 
 
 @sio.on('connect')
 def connect(sid, environ):
+    global prev_steering, prev_throttle
+    prev_steering = 0.0
+    prev_throttle = 0.0
+    print("\n🎯 ENHANCED CORNERING SYSTEM")
+    print("=" * 70)
+    print("Category      | Response | Angle Boost | Speed Range")
+    print("-" * 70)
+    print("🔴 EXTREME    |   95%    |  1.5x-2.7x  | 3-7 km/h   (Max turn)")
+    print("🟠 VERY_SHARP |   90%    |  1.4x-1.9x  | 5-10 km/h  (High turn)")
+    print("🟡 SHARP      |   85%    |  1.3x-1.7x  | 7-13 km/h  (Strong turn)")
+    print("🟢 MEDIUM     |   70%    |  1.2x-1.5x  | 9-17 km/h  (Moderate turn)")
+    print("🔵 GENTLE     |   55%    |  1.1x-1.3x  | 15-20 km/h (Light turn)")
+    print("⚪ STRAIGHT   |   40%    |  1.0x       | 18-23 km/h (No turn)")
+    print("=" * 70 + "\n")
     print(f"Simulator connected: {sid}")
 
 
@@ -236,9 +375,8 @@ if __name__ == "__main__":
     parser.add_argument('model', type=str, help='Path to .pth model')
     parser.add_argument('--image_folder', type=str, default='', help='Folder to save images')
     parser.add_argument('--camera', type=str, default='center', choices=['center','left','right'])
-    parser.add_argument('--steer_correction', type=float, default=0.2)
-    parser.add_argument('--alpha', type=float, default=0.2)
-    parser.add_argument('--max_speed', type=float, default=15.0)
+    parser.add_argument('--steer_correction', type=float, default=0.25)
+    parser.add_argument('--max_throttle', type=float, default=0.65)
     parser.add_argument('--port', type=int, default=4567)
     global ARGS
     ARGS = parser.parse_args()
@@ -246,8 +384,10 @@ if __name__ == "__main__":
     # تحميل الموديل
     model = build_nvidia_model()
     checkpoint = torch.load(ARGS.model, map_location=device)
-    if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
-        model.load_state_dict(checkpoint['model_state_dict'])
+    if isinstance(checkpoint, dict):
+        key = 'model_state_dict' if 'model_state_dict' in checkpoint else \
+              'state_dict' if 'state_dict' in checkpoint else None
+        model.load_state_dict(checkpoint[key] if key else checkpoint)
     else:
         model.load_state_dict(checkpoint)
     model.eval()

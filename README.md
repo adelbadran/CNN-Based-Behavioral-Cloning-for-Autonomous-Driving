@@ -259,10 +259,12 @@ python drive.py best_model.pth run_images/ \
 
 ```
 📦 Loading model from: nvidia_model.pth
-✅ Model loaded and set to eval on cuda
-🚦 Starting server on port 4567 ...
-🔗 Simulator connected: abc123
-[2025-12-10T15:30:45] Steer: 0.042 | Throttle: 0.650 | Speed: 12.34 | Limit: 14.6 | Camera: center
+✓ Model loaded and set to eval
+📸 Saving images to: output_images
+🌐 Starting server on port 4567 ...
+🎯 Enhanced angle boost in curves
+🐢 Lower speeds for safety
+⚡ Max throttle: 0.65
 ```
 
 ---
@@ -331,21 +333,17 @@ This project is licensed under the **MIT License**
 
 CNN-Based Behavioral Cloning for Autonomous Driving/
 ├── Deployment/                     # Deployment and inference components
-│   ├── prediction/                 # Standalone prediction service
+│   ├── predictor/                  # Standalone prediction service
 │   ├── sim_server/                 # Simulator communication server
 │   └── sim_web/                    # Web-based visualization dashboard
 ├── Saved Models/                   # Trained model checkpoints
-│   ├── Track_1/                    # Models trained on Track 1
-│   │   ├── nvidia_model.pth        # NVIDIA PilotNet weights
-│   │   └── vit_model.pth           # Vision Transformer weights
-│   └── Track_2/                    # Models trained on Track 2
-│       └── nvidia_model.pth        # NVIDIA PilotNet weights
+│   │── vit_model.pth               # Vision Transformer weights
+│   └── nvidia_model.pth            # NVIDIA PilotNet weights
 ├── Installation/                   # Setup and configuration files
 │   ├── requirements.txt            # Python dependencies
 │   └── setup_instructions.md       # Detailed installation guide
 ├── Notebooks/                      # Training notebooks
-│   ├── Self_Driving_Car_Sim_VIT.ipynb    # Vision Transformer training
-│   └── Self_Driving_Car_Sim_Nvidia.ipynb # NVIDIA PilotNet training
+│   └── Self_Driving_Car_Sim.ipynb  # NVIDIA PilotNet & VIT training
 └── README.md                       # Project documentation
 
 ```

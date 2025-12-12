@@ -1,44 +1,63 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم القيادة الذاتية</title>
+    <title>Autonomous Driving Car Dashboard</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap'); /* خط مستقبلي */
-        
+
+         :root {
+            --primary-color: #6432c8;
+            --primary-light: #8b5fbf;
+            --primary-dark: #4a237a;
+            --accent-green: #00ff88;
+            --accent-pink: #ff6b9d;
+            --accent-cyan: #00d4ff;
+            --accent-orange: #ff8c42;
+            --bg-dark: #0a0e27;
+            --bg-secondary: #1a1f3a;
+            --bg-tertiary: #252d4a;
+            --text-primary: #ffffff;
+            --text-secondary: #a8b2d1;
+            --border-color: rgba(100, 50, 200, 0.3);
+            --success: #00ff88;
+            --warning: #ff8c42;
+            --danger: #ff6b9d;
+        }
+
+
         body {
             font-family: 'Orbitron', Arial, sans-serif; 
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0d0015 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
             min-height: 100vh;
             text-align: center;
-            color: #e0e0e0; 
+            color: var(--text-primary);
         }
-
         
-
         #simulation-container {
             position: relative;
             width: 700px;
             height: 400px;
             margin: 30px 20px;
-            background-color: rgba(10, 10, 10, 0.5);
-            border: 2px solid #00ffff; 
-            border-radius: 10px;
+            background-color: rgba(26, 31, 58, 0.6);
+            border: 2px solid var(--accent-cyan);
+            border-radius: 12px;
             overflow: hidden;
-            animation: glowing-border 4s infinite alternate;
-            transition: transform 0.3s;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.25);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         #simulation-container:hover {
-            transform: scale(1.02); 
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
         }
 
         #road-view {
@@ -64,14 +83,14 @@
             left: 0;
             width: 100%;
             height: 100%;
+            padding-top: 550px;
             background-image: url('assets/car_interior_mask.png');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             z-index: 15;
             pointer-events: none;
-            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.7);
-            padding-top: 550px;
+            box-shadow: inset 0 0 60px rgba(0, 0, 0, 0, 0.8);
         }
 
         #steering-wheel-container {
@@ -86,67 +105,86 @@
 
         #controls {
             margin-top: 30px;
-            padding: 20px 40px;
-            background: rgba(25, 25, 25, 0.8);
-            border: 1px solid #00ffff55;
+            padding: 30px 130px;
+            background: linear-gradient(135deg, rgba(100, 50, 200, 0.15), rgba(0, 212, 255, 0.1));
+            border: 1px solid var(--border-color);
             border-radius: 15px;
-            box-shadow: 0 0 25px rgba(0, 255, 255, 0.2), inset 0 0 10px #00ffff11;
+            box-shadow: 
+                0 0 25px rgba(0, 212, 255, 0.15),
+                inset 0 0 12px rgba(100, 50, 200, 0.2);
             display: flex;
             gap: 50px;
             align-items: center;
-            backdrop-filter: blur(5px); 
+            backdrop-filter: blur(8px);
+            color: var(--text-primary);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        #controls:hover{
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+            transform: translateY(-5px);
         }
         
         #controls h3 {
-            color: #00ffaa;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-top: 0;
             font-weight: 700;
-            text-shadow: 0 0 5px rgba(0, 255, 170, 0.5);
-            
+            text-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
+            margin-bottom: 20px;
         }
 
         #start-button {
-            padding: 12px 25px;
+            padding: 12px 28px;
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             border: none;
-            border-radius: 8px;
-            background: linear-gradient(145deg, #00ffaa, #00b377); 
-            color: #1a1a1a;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 4px #009966, 0 8px 15px rgba(0,255,170,0.4);
-            letter-spacing: 0.5px;
+            border-radius: 10px;
+            background: linear-gradient(145deg, var(--primary-color), var(--primary-light));
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 4px 10px rgba(100, 50, 200, 0.4),
+                0 8px 20px rgba(139, 95, 191, 0.3);
+            letter-spacing: 0.8px;
         }
-        
+
         #start-button:hover {
-            background: linear-gradient(145deg, #00ffb3, #00d48f);
-            box-shadow: 0 6px #009966, 0 10px 20px rgba(0, 255, 170, 0.6);
-            transform: translateY(-2px);
+            background: linear-gradient(145deg, var(--primary-light), #a06cd5);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 20px rgba(100, 50, 200, 0.5),
+                0 12px 30px rgba(139, 95, 191, 0.4);
         }
 
         #start-button:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 #009966;
+            transform: translateY(2px);
+            box-shadow: 0 4px 10px rgba(100, 50, 200, 0.3);
         }
         
         #angle-display {
             font-family: 'Orbitron', monospace;
             font-weight: 700;
-            color: #ffcc00; 
-            font-size: 1.5em;
-            padding: 5px 10px;
-            border: 1px solid #ffcc0044;
-            background-color: #1a1a1a;
-            border-radius: 5px;
+            color: var(--accent-orange);
+            font-size: 1.6em;
+            padding: 8px 16px;
+            border: 1px solid var(--accent-orange + '44');
+            background-color: var(--bg-tertiary);
+            border-radius: 8px;
             display: inline-block;
-            min-width: 100px;
+            min-width: 120px;
             text-align: center;
-            text-shadow: 0 0 8px rgba(255, 204, 0, 0.7);
+            text-shadow: 0 0 10px rgba(255, 140, 66, 0.6);
+            box-shadow: 0 0 15px rgba(255, 140, 66, 0.2);
         }
         
         #controls p {
-            margin: 5px 0 0 0;
+            margin: 5px 5px 0 5px;
             font-size: 0.9em;
             color: #a0a0a0;
         }
@@ -158,30 +196,11 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --primary-color: #6432c8;
-            --primary-light: #8b5fbf;
-            --primary-dark: #4a237a;
-            --accent-green: #00ff88;
-            --accent-pink: #ff6b9d;
-            --accent-cyan: #00d4ff;
-            --accent-orange: #ff8c42;
-            --bg-dark: #0a0e27;
-            --bg-secondary: #1a1f3a;
-            --bg-tertiary: #252d4a;
-            --text-primary: #ffffff;
-            --text-secondary: #a8b2d1;
-            --border-color: rgba(100, 50, 200, 0.3);
-            --success: #00ff88;
-            --warning: #ff8c42;
-            --danger: #ff6b9d;
-        }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, var(--bg-dark) 0%, #0d0015 100%);
             color: var(--text-primary);
-            min-height: 100vh;
             overflow-x: hidden;
         }
 
@@ -189,8 +208,9 @@
         .header {
             background: rgba(26, 31, 58, 0.95);
             border-bottom: 2px solid var(--border-color);
-            padding: 20px 30px;
+            padding: 30px 120px;
             display: flex;
+            border-radius: 15px;
             justify-content: space-between;
             align-items: center;
             backdrop-filter: blur(10px);
@@ -207,7 +227,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-left: 20px;
+            margin-right: 30px;
         }
 
         .header-controls {
@@ -247,7 +267,7 @@
 
         /* Main Container */
         .container {
-            max-width: 1600px;
+            width: 1200px;
             margin: 0 auto;
             padding: 30px;
             display: flex;
@@ -514,204 +534,187 @@
     </style>
 </head>
 <body>
-
-    <div id="simulation-container">
-        
+<div id="simulation-container">
+       
         <div id="road-view">
             <img id="road-frame" src="" alt="Road Frame">
         </div>
-
         <div id="car-interior">
             </div>
-
         <div id="steering-wheel-container">
             </div>
     </div>
-
     <div id="controls">
         <button id="start-button">Play Auto mode</button>
         <div>
             <h3>Result Of Prediction</h3>
-            <p>Rotation Angle (rad):  <span id="angle-display">0.000</span></p>
+            <p><span id="angle-display">0.000</span></p>
         </div>
     </div>
-
     <!-- Integrated Dashboard -->
     <!-- Header -->
     <div class="header">
-        <div class="header-title">🚗 لوحة تحكم القيادة الذاتية</div>
+        <div class="header-title">Autonomous Driving Dashboard</div>
         <div class="header-controls">
             <div class="api-status">
                 <div class="status-indicator" id="apiStatus"></div>
-                <span id="apiStatusText">جاري الاتصال...</span>
+                <span id="apiStatusText">Connecting...</span>
             </div>
         </div>
     </div>
-
     <!-- Main Container -->
     <div class="container">
         <!-- Navigation Tabs -->
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('overview')">نظرة عامة</button>
-            <button class="nav-tab" onclick="switchTab('steering')">زاوية التوجيه</button>
-            <button class="nav-tab" onclick="switchTab('speed')">السرعة والتسارع</button>
-            <button class="nav-tab" onclick="switchTab('analysis')">التحليلات المتقدمة</button>
-            <button class="nav-tab" onclick="switchTab('events')">الأحداث</button>
-            <button class="nav-tab" onclick="switchTab('settings')">الإعدادات</button>
+            <button class="nav-tab active" onclick="switchTab('overview')">Overview</button>
+            <button class="nav-tab" onclick="switchTab('steering')">Steering Angle</button>
+            <button class="nav-tab" onclick="switchTab('speed')">Speed & Acceleration</button>
+            <button class="nav-tab" onclick="switchTab('analysis')">Advanced Analysis</button>
+            <button class="nav-tab" onclick="switchTab('events')">Events</button>
+            <button class="nav-tab" onclick="switchTab('settings')">Settings</button>
         </div>
-
         <!-- TAB 1: Overview -->
         <div id="overview" class="tab-content active">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-label">إجمالي التنبؤات</div>
+                    <div class="stat-label">Total Predictions</div>
                     <div class="stat-value" id="totalPredictions">0</div>
-                    <div class="stat-unit">إطار</div>
-                    <div class="stat-change">↑ تحديث مباشر</div>
+                    <div class="stat-unit">frames</div>
+                    <div class="stat-change">Live update</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">متوسط الزاوية</div>
+                    <div class="stat-label">Average Angle</div>
                     <div class="stat-value" id="avgAngle">0</div>
-                    <div class="stat-unit">درجة</div>
-                    <div class="stat-change">آخر جلسة</div>
+                    <div class="stat-unit">degrees</div>
+                    <div class="stat-change">Last session</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">أقصى زاوية</div>
+                    <div class="stat-label">Max Angle</div>
                     <div class="stat-value" id="maxAngle">0</div>
-                    <div class="stat-unit">درجة</div>
-                    <div class="stat-change">قيمة متطرفة</div>
+                    <div class="stat-unit">degrees</div>
+                    <div class="stat-change">Extreme value</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">عدد المنعطفات</div>
+                    <div class="stat-label">Number of Turns</div>
                     <div class="stat-value" id="turnCount">0</div>
-                    <div class="stat-unit">منعطف</div>
-                    <div class="stat-change">منعطفات حادة > 15°</div>
+                    <div class="stat-unit">turns</div>
+                    <div class="stat-change">Sharp turns > 15°</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">استقرار الموديل</div>
+                    <div class="stat-label">Model Stability</div>
                     <div class="stat-value" id="stability">0</div>
                     <div class="stat-unit">%</div>
-                    <div class="stat-change">تقلب أقل = أفضل</div>
+                    <div class="stat-change">Lower fluctuation = better</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">حالة API</div>
-                    <div class="stat-value" id="apiHealth">جاهز</div>
-                    <div class="stat-unit">متصل</div>
-                    <div class="stat-change">✓ جاهز للاستخدام</div>
+                    <div class="stat-label">API Status</div>
+                    <div class="stat-value" id="apiHealth">Ready</div>
+                    <div class="stat-unit">Connected</div>
+                    <div class="stat-change">Ready for use</div>
                 </div>
             </div>
-
             <div class="chart-container">
                 <div class="chart-title">
                     <div class="chart-icon"></div>
-                    خلاصة الأداء
+                    Performance Summary
                 </div>
                 <div class="chart-area" id="overviewChart"></div>
             </div>
         </div>
-
         <!-- TAB 2: Steering Angle Timeline -->
         <div id="steering" class="tab-content">
             <div class="chart-container">
                 <div class="chart-title">
                     <div class="chart-icon"></div>
-                    زاوية التوجيه عبر الزمن (مع تظليل المنعطفات الحادة)
+                    Steering Angle Over Time (with sharp turn shading)
                 </div>
                 <div class="chart-area" id="steeringChart"></div>
             </div>
         </div>
-
         <!-- TAB 3: Speed & Acceleration -->
         <div id="speed" class="tab-content">
             <div class="grid-2">
                 <div class="chart-container">
                     <div class="chart-title">
                         <div class="chart-icon"></div>
-                        السرعة عبر الزمن
+                        Speed Over Time
                     </div>
                     <div class="chart-area" id="speedChart"></div>
                 </div>
                 <div class="chart-container">
                     <div class="chart-title">
                         <div class="chart-icon"></div>
-                        التسارع / التباطؤ
+                        Acceleration / Deceleration
                     </div>
                     <div class="chart-area" id="accelerationChart"></div>
                 </div>
             </div>
         </div>
-
         <!-- TAB 4: Advanced Analysis -->
         <div id="analysis" class="tab-content">
             <div class="grid-2">
                 <div class="chart-container">
                     <div class="chart-title">
                         <div class="chart-icon"></div>
-                        توزيع زوايا التوجيه
+                        Steering Angle Distribution
                     </div>
                     <div class="chart-area" id="histogramChart"></div>
                 </div>
                 <div class="chart-container">
                     <div class="chart-title">
                         <div class="chart-icon"></div>
-                        Heatmap: السرعة vs الزاوية
+                        Heatmap: Speed vs Angle
                     </div>
                     <div class="chart-area" id="heatmapChart"></div>
                 </div>
             </div>
         </div>
-
         <!-- TAB 5: Events -->
         <div id="events" class="tab-content">
             <div class="chart-container">
                 <div class="chart-title">
                     <div class="chart-icon"></div>
-                    الأحداث المهمة عبر الزمن
+                    Important Events Over Time
                 </div>
                 <div class="chart-area" id="eventsChart"></div>
             </div>
-
             <div class="chart-container">
                 <div class="chart-title">
                     <div class="chart-icon"></div>
-                    قائمة الأحداث
+                    Events List
                 </div>
                 <div id="eventsList" style="height: 300px; overflow-y: auto;">
-                    <div class="loading"><span class="spinner"></span>جاري تحميل الأحداث...</div>
+                    <div class="loading"><span class="spinner"></span>Loading events...</div>
                 </div>
             </div>
         </div>
-
         <!-- TAB 6: Settings -->
         <div id="settings" class="tab-content">
             <div class="chart-container">
                 <div class="chart-title">
                     <div class="chart-icon"></div>
-                    تخصيص الألوان
+                    Color Customization
                 </div>
                 <div class="theme-customizer" id="themeCustomizer"></div>
-                <button class="btn" onclick="resetColors()" style="margin-top: 20px;">استعادة الألوان الافتراضية</button>
+                <button class="btn" onclick="resetColors()" style="margin-top: 20px;">Reset to Default Colors</button>
             </div>
-
             <div class="chart-container">
                 <div class="chart-title">
                     <div class="chart-icon"></div>
-                    إعدادات API
+                    API Settings
                 </div>
                 <div style="padding: 20px; color: var(--text-secondary);">
-                    <p>URL API: <strong>http://127.0.0.1:4567</strong></p>
-                    <p>الحالة: <span id="apiConnectionStatus">✗ غير متصل</span></p>
-                    <button class="btn" onclick="testConnection()" style="margin-top: 15px;">اختبار الاتصال</button>
+                    <p>API URL: <strong>http://127.0.0.1:4567</strong></p>
+                    <p>Status: <span id="apiConnectionStatus">Not connected</span></p>
+                    <button class="btn" onclick="testConnection()" style="margin-top: 15px;">Test Connection</button>
                 </div>
             </div>
         </div>
-
         <!-- Footer -->
         <div class="footer">
-            <p>© 2025 لوحة تحكم القيادة الذاتية | تحديث مباشر مع Flask</p>
+            <p>© 2025 Autonomous Driving Dashboard | Live update with Flask</p>
         </div>
     </div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -794,10 +797,10 @@
             
             if (connected) {
                 indicator.classList.add('connected');
-                text.textContent = 'متصل ✓';
+                text.textContent = 'Connected ✓';
             } else {
                 indicator.classList.remove('connected');
-                text.textContent = 'غير متصل ✗';
+                text.textContent = 'Not Connected ✗';
             }
         }
 
@@ -1231,7 +1234,7 @@
 
         async function testConnection() {
             const status = document.getElementById('apiConnectionStatus');
-            status.textContent = 'جاري الاختبار...';
+            status.textContent = 'Checking Connection ...';
 
             const connected = await checkAPIConnection();
             

@@ -46,18 +46,23 @@ if (container) {
     animate();
 }
 
-// Smoothly rotate the 3D steering wheel based on steering angle
-function updateSteeringWheel(angle) {
+// Smoothly rotate the 3D steering wheel based on normalized steering angle (-1 to 1)
+function updateSteeringWheel(norm_angle) {
     if (!steeringWheelMesh) return;
 
+    // === زاوية الدوران الفعلية بناءً على الـ normalized angle ===
+    // -1 → -35°  |  0 → 0°  |  1 → +35°
     const maxRotationDegrees = 35;
-    const targetDegrees = -angle * maxRotationDegrees;
+    const targetDegrees = norm_angle * maxRotationDegrees;
 
+    // === Smooth Interpolation ===
     const currentDegrees = steeringWheelMesh.rotation.x * (180 / Math.PI);
     const smoothedDegrees = currentDegrees + (targetDegrees - currentDegrees) * 0.25;
 
-    steeringWheelMesh.rotation.x = smoothedDegrees * (Math.PI / 180);
+    steeringWheelMesh.rotation.z = smoothedDegrees * (Math.PI / 180);
+    console.log(steeringWheelMesh.rotation);
 }
+
 
 // ======== Socket.IO Connection ========
 function connectToServer() {
@@ -117,13 +122,13 @@ document.getElementById('start-button').addEventListener('click', () => {
     if (autoModeActive) {
         connectToServer();
         btn.textContent = "Stop Auto Mode";
-        btn.style.background = "linear-gradient(145deg, #ff4444, #cc0000)";
-        btn.style.boxShadow = "0 8px 15px rgba(255,0,0,0.4)";
+        btn.style.background = "linear-gradient(145deg, #f65050ff, #e96565ff)";
+        btn.style.boxShadow = "0 4px 10px rgba(100, 50, 200, 0.4)";
     } else {
         if (socket) socket.disconnect();
         btn.textContent = "Start Auto Mode";
-        btn.style.background = "linear-gradient(145deg, #00ffaa, #00b377)";
-        btn.style.boxShadow = "0 8px 15px rgba(0,255,170,0.4)";
+        btn.style.background = "linear-gradient(145deg, #6432c8, #8b5fbf)";
+        btn.style.boxShadow = "0 4px 10px rgba(100, 50, 200, 0.4),";
 
         // Reset displays
         document.getElementById('road-frame').src = "assets/images/placeholder.jpg";
