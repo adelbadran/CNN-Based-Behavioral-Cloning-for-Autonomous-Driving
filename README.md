@@ -187,6 +187,16 @@ A compact, high-performance autonomous driving engine using **Adaptive Response 
 - Category-based acceleration  
 - Throttle smoothing **0.35 → 0.85**
 
+---
+
+#### Streaming Track 1
+![Live (Track 1)](Results/LiveStreaming_1.png)
+
+#### Streaming Track 2
+![Live (Track 2)](Results/LiveStreaming_2.png)
+
+---
+
 ### Real-Time Self-Driving Visualization System
 
 A fully integrated autonomous driving loop using Socket.IO enables comprehensive system monitoring:
@@ -194,6 +204,8 @@ A fully integrated autonomous driving loop using Socket.IO enables comprehensive
 The simulator streams live telemetry (camera and sensor data) via Socket.IO to a Python inference server running the PilotNet model, which returns steering and throttle commands instantaneously. All data is simultaneously broadcast through Socket.IO to a rich web dashboard displaying live camera feed, 3D animated steering wheel visualization, and real-time Plotly charts including steering angle timeline, speed and acceleration plots, steering distribution histogram, speed vs. angle heatmap, key events chart with detailed event list, and an overview chart combining speed and steering angle.
 
 A separate FastAPI endpoint with a neon-themed UI provides instant steering prediction from uploaded images. All components are synchronized in real-time for comprehensive system monitoring.
+
+---
 
 #### Web Streaming
 ![dr_drive](Results/our_dr_drive.jpeg)
@@ -203,6 +215,8 @@ A separate FastAPI endpoint with a neon-themed UI provides instant steering pred
 
 #### Performance
 ![Dashboard](Results/performance.jpeg)
+
+---
 
 ### Command-Line Arguments
 
@@ -361,15 +375,5 @@ CNN-Based Behavioral Cloning for Autonomous Driving/
 └── README.md                     # Project documentation
 
 ```
-
----
-
-#### Streaming Track 1
-![Live (Track 1)](Results/LiveStreaming_1.png)
-
-#### Streaming Track 2
-![Live (Track 2)](Results/LiveStreaming_2.png)
-
----
 
 **Happy autonomous driving!** 🚗💨
