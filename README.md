@@ -195,6 +195,15 @@ The simulator streams live telemetry (camera and sensor data) via Socket.IO to a
 
 A separate FastAPI endpoint with a neon-themed UI provides instant steering prediction from uploaded images. All components are synchronized in real-time for comprehensive system monitoring.
 
+#### Web Streaming
+![dr_drive](Results/our_dr_drive.jpeg)
+
+#### Dashboard
+![Dashboard](Results/Dashboard.jpeg)
+
+#### Performance
+![Dashboard](Results/performance.jpeg)
+
 ### Command-Line Arguments
 
 ```bash
@@ -284,13 +293,13 @@ The model successfully completes full autonomous laps on Track 2 with smooth cor
 ### Visualizations
 
 #### Steering Distribution Balancing (After attempts)
-![Steering Histogram](IMG/steering_histogram_before_after.png)
+![Steering Histogram](Results/steering_histogram_before_after.png)
 
 #### Train Vs Validation
-![Data Split](IMG/Train_Validation_Split.png)
+![Data Split](Results/Train_Validation_Split.png)
 
 #### Training Augmentation Examples
-![Augmented Samples](IMG/augmented_batch_samples.png)
+![Augmented Samples](Results/augmented_batch_samples.png)
 
 ---
 
@@ -356,10 +365,10 @@ CNN-Based Behavioral Cloning for Autonomous Driving/
 ---
 
 #### Streaming Track 1
-![Live (Track 1)](IMG/LiveStreaming_1.png)
+![Live (Track 1)](Results/LiveStreaming_1.png)
 
 #### Streaming Track 2
-![Live (Track 2)](IMG/LiveStreaming_2.png)
+![Live (Track 2)](Results/LiveStreaming_2.png)
 
 ---
 
